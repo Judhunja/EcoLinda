@@ -121,31 +121,7 @@ export function ForestEducationPage() {
       </div>
 
       <!-- Interactive Tools -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Carbon Calculator -->
-        <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6">
-          <div class="flex items-center gap-3 mb-4">
-            <span class="material-symbols-outlined text-primary text-4xl">calculate</span>
-            <h3 class="text-2xl font-bold text-text-light dark:text-text-dark">Carbon Calculator</h3>
-          </div>
-          <p class="text-text-light/70 dark:text-text-dark/70 mb-4">
-            Calculate how many trees you need to offset your carbon footprint.
-          </p>
-          <div class="space-y-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium mb-2">Your annual carbon footprint (tons CO₂)</label>
-              <input type="number" id="carbon-input" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700" placeholder="e.g., 5" value="5">
-            </div>
-            <button id="calculate-btn" class="w-full py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-              Calculate Trees Needed
-            </button>
-          </div>
-          <div id="carbon-result" class="hidden bg-white dark:bg-gray-800 rounded-lg p-4">
-            <p class="text-center text-2xl font-bold text-primary mb-2" id="trees-needed"></p>
-            <p class="text-center text-sm text-text-light/70 dark:text-text-dark/70" id="carbon-explanation"></p>
-          </div>
-        </div>
-
+      <div class="grid grid-cols-1 gap-6">
         <!-- Quiz Section -->
         <div class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-6">
           <div class="flex items-center gap-3 mb-4">
@@ -303,19 +279,6 @@ export function ForestEducationPage() {
     })
   })
   
-  // Carbon calculator
-  page.querySelector('#calculate-btn').addEventListener('click', () => {
-    const carbonTons = parseFloat(page.querySelector('#carbon-input').value) || 5
-    const treesNeeded = Math.ceil(carbonTons * 40) // Roughly 40 trees per ton CO2/year
-    const result = page.querySelector('#carbon-result')
-    const treesEl = page.querySelector('#trees-needed')
-    const explanationEl = page.querySelector('#carbon-explanation')
-    
-    treesEl.textContent = `${treesNeeded} trees`
-    explanationEl.textContent = `You would need approximately ${treesNeeded} mature trees to offset ${carbonTons} tons of CO₂ per year. Each tree absorbs about 25kg of CO₂ annually.`
-    result.classList.remove('hidden')
-  })
-  
   // Quiz button
   page.querySelector('#start-quiz-btn').addEventListener('click', async () => {
     await startQuiz(page)
@@ -431,37 +394,220 @@ async function startQuiz(page) {
   try {
     const result = await generateQuiz('Forest Conservation and Biodiversity', 'medium', 5)
     
-    if (result.success) {
-      modalContent.innerHTML = `
-        <div class="space-y-6">
-          <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4">
-            <p class="text-text-light dark:text-text-dark">
-              Test your knowledge with these AI-generated questions about forest conservation!
-            </p>
-          </div>
-          <div class="prose prose-lg dark:prose-invert max-w-none whitespace-pre-line">
-            ${result.quiz}
-          </div>
-          <div class="flex gap-4">
-            <button class="flex-1 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-              Submit Answers
-            </button>
-          </div>
-        </div>
-      `
+    if (result.success && result.questions) {
+      renderInteractiveQuiz(modalContent, result.questions)
     } else {
       modalContent.innerHTML = `
         <div class="text-center py-12">
           <span class="material-symbols-outlined text-red-500 text-6xl mb-4">error</span>
-          <p class="text-text-light dark:text-text-dark">Failed to generate quiz</p>
+          <p class="text-text-light dark:text-text-dark mb-4">Failed to generate quiz</p>
+          <p class="text-sm text-gray-500">${result.error || 'Unknown error'}</p>
         </div>
       `
     }
   } catch (error) {
     console.error('Error generating quiz:', error)
+    modalContent.innerHTML = `
+      <div class="text-center py-12">
+        <span class="material-symbols-outlined text-red-500 text-6xl mb-4">error</span>
+        <p class="text-text-light dark:text-text-dark">An error occurred while generating the quiz.</p>
+      </div>
+    `
   }
   
   closeBtn.onclick = () => modal.classList.add('hidden')
+}
+
+function renderInteractiveQuiz(container, questions) {
+  const userAnswers = new Array(questions.length).fill(null)
+  let showingResults = false
+  
+  const render = () => {
+    const questionsHTML = questions.map((q, qIndex) => {
+      const optionsHTML = q.options.map((option, oIndex) => {
+        const isSelected = userAnswers[qIndex] === oIndex
+        const isCorrect = oIndex === q.correct
+        const showCorrect = showingResults && isCorrect
+        const showWrong = showingResults && isSelected && !isCorrect
+        
+        let buttonClass = 'w-full text-left p-4 rounded-lg border-2 transition-all '
+        if (showCorrect) {
+          buttonClass += 'border-green-500 bg-green-50 dark:bg-green-900/20'
+        } else if (showWrong) {
+          buttonClass += 'border-red-500 bg-red-50 dark:bg-red-900/20'
+        } else if (isSelected) {
+          buttonClass += 'border-primary bg-primary/5'
+        } else {
+          buttonClass += 'border-gray-200 dark:border-gray-600 hover:border-primary/50 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+        }
+        
+        let radioClass = 'flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center '
+        if (showCorrect) {
+          radioClass += 'border-green-500 bg-green-500'
+        } else if (showWrong) {
+          radioClass += 'border-red-500 bg-red-500'
+        } else if (isSelected) {
+          radioClass += 'border-primary bg-primary'
+        } else {
+          radioClass += 'border-gray-300 dark:border-gray-600'
+        }
+        
+        let radioIcon = ''
+        if (showCorrect) {
+          radioIcon = '<span class="material-symbols-outlined text-white text-sm">check</span>'
+        } else if (showWrong) {
+          radioIcon = '<span class="material-symbols-outlined text-white text-sm">close</span>'
+        } else if (isSelected && !showingResults) {
+          radioIcon = '<span class="w-3 h-3 bg-white rounded-full"></span>'
+        }
+        
+        return `
+          <button 
+            class="${buttonClass}"
+            data-question="${qIndex}" 
+            data-option="${oIndex}"
+            ${showingResults ? 'disabled' : ''}
+          >
+            <div class="flex items-center gap-3">
+              <div class="${radioClass}">
+                ${radioIcon}
+              </div>
+              <span class="flex-1 text-gray-700 dark:text-gray-300">
+                ${option}
+              </span>
+            </div>
+          </button>
+        `
+      }).join('')
+      
+      const explanationHTML = showingResults ? `
+        <div class="mt-4 ml-11 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div class="flex gap-2">
+            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-sm">info</span>
+            <div>
+              <p class="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1">Explanation:</p>
+              <p class="text-sm text-blue-800 dark:text-blue-300">${q.explanation}</p>
+            </div>
+          </div>
+        </div>
+      ` : ''
+      
+      const questionBorderClass = showingResults 
+        ? (userAnswers[qIndex] === q.correct ? 'border-green-500' : 'border-red-500')
+        : 'border-gray-200 dark:border-gray-700'
+      
+      return `
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border ${questionBorderClass}">
+          <div class="flex gap-3 mb-4">
+            <span class="flex-shrink-0 w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold">
+              ${qIndex + 1}
+            </span>
+            <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-50 pt-1">
+              ${q.question}
+            </h4>
+          </div>
+          <div class="space-y-3 ml-11">
+            ${optionsHTML}
+          </div>
+          ${explanationHTML}
+        </div>
+      `
+    }).join('')
+    
+    const score = userAnswers.filter((a, i) => a === questions[i].correct).length
+    const percentage = Math.round((score / questions.length) * 100)
+    
+    const resultsHTML = showingResults ? `
+      <div class="bg-gradient-to-r from-primary/10 to-green-500/10 rounded-xl p-6">
+        <div class="text-center">
+          <div class="text-5xl font-bold text-primary mb-2">
+            ${score}/${questions.length}
+          </div>
+          <p class="text-xl font-semibold text-gray-900 dark:text-gray-50 mb-1">
+            ${score === questions.length ? 'Perfect Score! 🎉' : score >= questions.length * 0.7 ? 'Great Job! 👏' : 'Keep Learning! 📚'}
+          </p>
+          <p class="text-gray-600 dark:text-gray-400">
+            You answered ${percentage}% correctly
+          </p>
+        </div>
+      </div>
+    ` : ''
+    
+    const buttonHTML = !showingResults ? `
+      <button 
+        id="submit-quiz" 
+        class="flex-1 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        ${userAnswers.includes(null) ? 'disabled' : ''}
+      >
+        <span class="material-symbols-outlined">check_circle</span>
+        Submit Answers
+      </button>
+    ` : `
+      <button 
+        id="retry-quiz" 
+        class="flex-1 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+      >
+        <span class="material-symbols-outlined">refresh</span>
+        Try Again
+      </button>
+    `
+    
+    container.innerHTML = `
+      <div class="space-y-6">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-6">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="material-symbols-outlined text-primary text-3xl">quiz</span>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-50">Test Your Knowledge</h3>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300">
+            ${questions.length} questions about forest conservation and biodiversity
+          </p>
+        </div>
+        
+        <div class="space-y-8">
+          ${questionsHTML}
+        </div>
+        
+        ${resultsHTML}
+        
+        <div class="flex gap-4">
+          ${buttonHTML}
+        </div>
+      </div>
+    `
+    
+    if (!showingResults) {
+      container.querySelectorAll('button[data-option]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const qIndex = parseInt(btn.dataset.question)
+          const oIndex = parseInt(btn.dataset.option)
+          userAnswers[qIndex] = oIndex
+          render()
+        })
+      })
+      
+      const submitBtn = container.querySelector('#submit-quiz')
+      if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+          showingResults = true
+          render()
+          container.scrollTo({ top: 0, behavior: 'smooth' })
+        })
+      }
+    } else {
+      const retryBtn = container.querySelector('#retry-quiz')
+      if (retryBtn) {
+        retryBtn.addEventListener('click', () => {
+          userAnswers.fill(null)
+          showingResults = false
+          render()
+          container.scrollTo({ top: 0, behavior: 'smooth' })
+        })
+      }
+    }
+  }
+  
+  render()
 }
 
 function formatTopicTitle(topic) {

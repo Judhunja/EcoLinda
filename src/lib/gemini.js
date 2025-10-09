@@ -314,20 +314,40 @@ export async function generateQuiz(topic, difficulty = 'medium', questionCount =
   try {
     const prompt = `Create ${questionCount} multiple-choice quiz questions about "${topic}".
     Difficulty: ${difficulty}
-    Format each question as JSON:
-    {
-      "question": "Question text",
-      "options": ["A", "B", "C", "D"],
-      "correct": 0,
-      "explanation": "Why this is correct"
+    
+    IMPORTANT: Return ONLY a valid JSON array, no markdown formatting, no code blocks, no additional text.
+    
+    Format:
+    [
+      {
+        "question": "Question text here?",
+        "options": ["Option A", "Option B", "Option C", "Option D"],
+        "correct": 0,
+        "explanation": "Brief explanation why this answer is correct"
+      }
+    ]
+    
+    Focus on practical knowledge about land conservation, environmental protection, and forest ecosystems.
+    Make questions clear, educational, and relevant to real-world conservation efforts.`
+
+    const content = await generateContent(prompt)
+    
+    // Try to parse the JSON response
+    let questions
+    try {
+      // Remove markdown code blocks if present
+      let cleanContent = content.trim()
+      cleanContent = cleanContent.replace(/```json\n?/g, '').replace(/```\n?/g, '')
+      questions = JSON.parse(cleanContent)
+    } catch (parseError) {
+      console.error('Failed to parse quiz JSON:', parseError)
+      console.log('Raw content:', content)
+      throw new Error('Failed to parse quiz questions')
     }
     
-    Focus on practical knowledge about land conservation and environmental protection.`
-
-    const quiz = await generateContent(prompt)
     return {
       success: true,
-      quiz
+      questions
     }
   } catch (error) {
     console.error('Error generating quiz:', error)
@@ -375,31 +395,67 @@ export async function getChatResponse(userMessage, conversationHistory = []) {
 export async function generateCampaignContent(campaignData) {
   try {
     const {
-      type, // reforestation, soil restoration, species protection, wetland
+      type,
+      title,
       location,
       goal,
-      targetSpecies
+      duration
     } = campaignData
 
-    const prompt = `Create compelling campaign content for a ${type} project:
-    - Location: ${location}
-    - Goal: ${goal}
-    - Target: ${targetSpecies || 'general restoration'}
-    
-    Include:
-    1. Engaging campaign title
-    2. Mission statement (2-3 sentences)
-    3. Why it matters (impact)
-    4. What participants will do
-    5. Expected outcomes
-    6. Call to action
-    
-    Make it inspiring and shareable on social media.`
+    const typeDescriptions = {
+      'reforestation': 'forest restoration and tree planting',
+      'urban-greening': 'urban tree planting and green space development',
+      'watershed': 'watershed protection and riparian forest restoration',
+      'agroforestry': 'agroforestry integration and sustainable land use'
+    }
+
+    const prompt = `You are writing a compelling campaign description for "${title}", a ${typeDescriptions[type]} initiative in ${location}.
+
+Campaign Details:
+- Goal: Plant ${goal} trees
+- Duration: ${duration} months
+- Location: ${location}
+- Type: ${typeDescriptions[type]}
+
+Write an engaging campaign description that will inspire people to join and support this initiative. The description should be ready to publish as-is.
+
+Include these sections (WITHOUT section headers):
+
+1. Opening paragraph: An inspiring introduction about the campaign and its vision (2-3 sentences)
+
+2. The Challenge: Describe the environmental challenge this campaign addresses in ${location} (2-3 sentences)
+
+3. Our Solution: Explain how planting ${goal} trees over ${duration} months will make a difference (2-3 sentences)
+
+4. Get Involved: A motivating call-to-action inviting people to join the campaign (1-2 sentences)
+
+IMPORTANT FORMATTING RULES:
+- Write in a natural, flowing narrative style
+- Use simple paragraphs separated by blank lines
+- DO NOT use markdown headings (no # symbols)
+- DO NOT use bullet points or numbered lists
+- DO NOT use bold or italic formatting (no ** or * symbols)
+- Write as if speaking directly to potential volunteers
+- Keep tone inspiring, positive, and action-oriented
+- Make it sound like a real campaign announcement, not a template or guide
+
+Write the complete campaign description now:`
 
     const content = await generateContent(prompt)
+    
+    // Clean up any remaining markdown or formatting
+    const cleanContent = content
+      .replace(/#{1,6}\s+/g, '') // Remove heading markers
+      .replace(/\*\*\*(.+?)\*\*\*/g, '$1') // Remove triple asterisks
+      .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markers
+      .replace(/\*(.+?)\*/g, '$1') // Remove italic markers
+      .replace(/^\d+\.\s+/gm, '') // Remove numbered list markers
+      .replace(/^[-•]\s+/gm, '') // Remove bullet points
+      .trim()
+    
     return {
       success: true,
-      content
+      content: cleanContent
     }
   } catch (error) {
     console.error('Error generating campaign content:', error)

@@ -4,6 +4,7 @@ import { SignupPage } from './pages/Signup'
 import { HomePage } from './pages/Home'
 import { ForestConservationPage } from './pages/modules/ForestConservation'
 import { ForestEducationPage } from './pages/modules/ForestEducation'
+import { ForestCampaignsPage } from './pages/modules/ForestCampaigns'
 import { SoilHealthPage } from './pages/modules/SoilHealth'
 import { supabase } from './lib/supabase'
 
@@ -17,6 +18,7 @@ class Router {
       '/dashboard': HomePage, // Alias for backward compatibility
       '/forest': ForestConservationPage,
       '/forest/education': ForestEducationPage,
+      '/forest/campaigns': ForestCampaignsPage,
       '/soil': SoilHealthPage,
     }
     this.currentPath = window.location.pathname
