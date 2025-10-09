@@ -107,6 +107,14 @@ export function ForestCampaignsPage() {
     router.navigate('/forest')
   })
   
+  // Setup modal close on backdrop click
+  const modal = page.querySelector('#campaign-modal')
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.add('hidden')
+    }
+  })
+  
   // Initial render of campaigns
   setTimeout(() => renderCampaigns(), 0)
   
@@ -162,7 +170,7 @@ function createCampaignCard(campaign, index) {
         </div>
       </div>
       <div class="flex gap-2">
-        <button class="flex-1 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm">
+        <button class="flex-1 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm view-details-btn" data-index="${index}">
           View Details
         </button>
         <button class="px-4 py-2 border-2 border-red-500 text-red-500 rounded-lg font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" onclick="deleteCampaign(${index})">
@@ -171,6 +179,12 @@ function createCampaignCard(campaign, index) {
       </div>
     </div>
   `
+  
+  // Add event listener for view details
+  const viewDetailsBtn = card.querySelector('.view-details-btn')
+  viewDetailsBtn.addEventListener('click', () => {
+    showCampaignDetails(campaign, index)
+  })
   
   return card
 }
@@ -184,6 +198,138 @@ window.deleteCampaign = (index) => {
     // Reload the page to refresh the list
     window.location.reload()
   }
+}
+
+// Function to show campaign details in a modal
+function showCampaignDetails(campaign, index) {
+  const modal = document.getElementById('campaign-modal')
+  const modalContent = document.getElementById('modal-content')
+  
+  const typeIcons = {
+    'reforestation': 'park',
+    'urban-greening': 'location_city',
+    'watershed': 'water_drop',
+    'agroforestry': 'agriculture'
+  }
+  
+  const typeColors = {
+    'reforestation': 'from-green-400 to-green-600',
+    'urban-greening': 'from-blue-400 to-blue-600',
+    'watershed': 'from-cyan-400 to-cyan-600',
+    'agroforestry': 'from-amber-400 to-amber-600'
+  }
+  
+  const icon = typeIcons[campaign.type] || 'park'
+  const colorGradient = typeColors[campaign.type] || 'from-green-400 to-green-600'
+  const progress = campaign.progress || 0
+  const progressPercent = (progress / campaign.goal) * 100
+  
+  const formatCampaignType = (type) => {
+    return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+  }
+  
+  modalContent.innerHTML = `
+    <div class="space-y-6">
+      <!-- Campaign Header -->
+      <div class="h-48 bg-gradient-to-br ${colorGradient} rounded-xl flex items-center justify-center">
+        <span class="material-symbols-outlined text-white text-8xl">${icon}</span>
+      </div>
+      
+      <!-- Campaign Info -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="px-3 py-1 bg-accent/10 text-accent rounded-full text-sm font-semibold">
+            ${formatCampaignType(campaign.type)}
+          </span>
+        </div>
+        <h2 class="text-3xl font-bold text-text-light dark:text-text-dark mb-2">${campaign.title}</h2>
+        <p class="text-text-light/70 dark:text-text-dark/70 flex items-center gap-1">
+          <span class="material-symbols-outlined text-sm">location_on</span>
+          ${campaign.location}
+        </p>
+      </div>
+      
+      <!-- Progress Section -->
+      <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6">
+        <h3 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Campaign Progress</h3>
+        <div class="mb-4">
+          <div class="flex justify-between text-sm mb-2">
+            <span class="text-text-light/70 dark:text-text-dark/70">Trees Planted</span>
+            <span class="font-bold text-primary text-lg">${progress.toLocaleString()} / ${campaign.goal.toLocaleString()}</span>
+          </div>
+          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+            <div class="bg-primary h-3 rounded-full transition-all" style="width: ${progressPercent}%"></div>
+          </div>
+          <p class="text-sm text-text-light/60 dark:text-text-dark/60 mt-2">${progressPercent.toFixed(1)}% Complete</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mt-4">
+          <div class="bg-white dark:bg-gray-700 rounded-lg p-3">
+            <p class="text-text-light/70 dark:text-text-dark/70 text-sm">Goal</p>
+            <p class="text-2xl font-bold text-text-light dark:text-text-dark">${campaign.goal.toLocaleString()}</p>
+          </div>
+          <div class="bg-white dark:bg-gray-700 rounded-lg p-3">
+            <p class="text-text-light/70 dark:text-text-dark/70 text-sm">Duration</p>
+            <p class="text-2xl font-bold text-text-light dark:text-text-dark">${campaign.duration} months</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Description -->
+      <div>
+        <h3 class="text-xl font-bold text-text-light dark:text-text-dark mb-3">About This Campaign</h3>
+        <div class="text-text-light/80 dark:text-text-dark/80 leading-relaxed space-y-3">
+          ${campaign.description.split('\n\n').map(para => `<p>${para}</p>`).join('')}
+        </div>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="flex gap-3 pt-4">
+        <button id="update-progress-btn" class="flex-1 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined">add</span>
+          Update Progress
+        </button>
+        <button id="share-campaign-btn" class="flex-1 py-3 border-2 border-accent text-accent rounded-lg font-semibold hover:bg-accent/10 transition-colors flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined">share</span>
+          Share Campaign
+        </button>
+      </div>
+    </div>
+  `
+  
+  // Show modal
+  modal.classList.remove('hidden')
+  
+  // Setup close button
+  const closeBtn = document.getElementById('close-modal')
+  closeBtn.onclick = () => {
+    modal.classList.add('hidden')
+  }
+  
+  // Update progress button handler
+  modalContent.querySelector('#update-progress-btn').addEventListener('click', () => {
+    const newTrees = prompt(`How many trees were planted? (Current: ${progress})`)
+    if (newTrees && !isNaN(newTrees) && parseInt(newTrees) >= 0) {
+      const campaigns = JSON.parse(localStorage.getItem('activeCampaigns') || '[]')
+      campaigns[index].progress = (campaigns[index].progress || 0) + parseInt(newTrees)
+      localStorage.setItem('activeCampaigns', JSON.stringify(campaigns))
+      showCampaignDetails(campaigns[index], index) // Refresh the view
+    }
+  })
+  
+  // Share campaign button handler
+  modalContent.querySelector('#share-campaign-btn').addEventListener('click', () => {
+    const shareText = `Join our ${campaign.title} campaign! Goal: ${campaign.goal.toLocaleString()} trees in ${campaign.location}. 🌳`
+    if (navigator.share) {
+      navigator.share({
+        title: campaign.title,
+        text: shareText,
+        url: window.location.href
+      })
+    } else {
+      navigator.clipboard.writeText(shareText)
+      alert('Campaign details copied to clipboard!')
+    }
+  })
 }
 
 function showCampaignWizard(page, activeCampaigns, renderCampaigns) {
