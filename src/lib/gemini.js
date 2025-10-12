@@ -466,6 +466,106 @@ Write the complete campaign description now:`
   }
 }
 
+/**
+ * Generate sustainable farming educational content with streaming
+ */
+export async function generateSustainableFarmingContent(topic, context = {}, onChunk) {
+  try {
+    const {
+      region = 'Kenya',
+      cropType = 'general',
+      level = 'intermediate', // beginner, intermediate, advanced
+      focusArea = 'practical'
+    } = context
+
+    const prompt = `You are an expert in sustainable agriculture and land management in ${region}. 
+    
+Create comprehensive educational content about "${topic}" for farmers${cropType !== 'general' ? ` growing ${cropType}` : ''}.
+
+Level: ${level}
+Focus: ${focusArea} applications
+
+Please provide:
+1. A clear introduction explaining why this topic is important
+2. Key concepts explained simply
+3. Practical, actionable steps farmers can implement
+4. Region-specific considerations for ${region}
+5. Expected benefits and outcomes
+6. Common mistakes to avoid
+7. Resources or next steps for learning more
+
+Format your response in clear paragraphs and use simple language. Make it engaging and easy to understand for farmers.
+DO NOT use markdown formatting, asterisks, or special characters. Just plain, well-structured text with line breaks between sections.`
+
+    if (onChunk) {
+      // Use streaming
+      const fullContent = await generateContentStream(prompt, onChunk)
+      return {
+        success: true,
+        content: fullContent
+      }
+    } else {
+      // Non-streaming
+      const content = await generateContent(prompt)
+      return {
+        success: true,
+        content
+      }
+    }
+  } catch (error) {
+    console.error('Error generating sustainable farming content:', error)
+    return {
+      success: false,
+      error: error.message,
+      content: 'Failed to generate content. Please try again.'
+    }
+  }
+}
+
+/**
+ * Generate personalized crop guide with streaming
+ */
+export async function generateCropGuideContent(cropName, regionInfo, onChunk) {
+  try {
+    const prompt = `Create a detailed growing guide for ${cropName} in ${regionInfo.name || regionInfo}.
+
+Include these sections:
+1. Overview - Why grow this crop in this region
+2. Climate and soil requirements
+3. Land preparation steps
+4. Planting guidelines (timing, spacing, depth)
+5. Water management specific to this crop
+6. Fertilization schedule (organic methods preferred)
+7. Pest and disease management
+8. Harvesting and post-harvest handling
+9. Common challenges and solutions
+10. Expected yields and market considerations
+
+Make the content practical and actionable for farmers. Use simple language.
+DO NOT use markdown, asterisks, or special formatting. Write in clear paragraphs with proper spacing.`
+
+    if (onChunk) {
+      const fullContent = await generateContentStream(prompt, onChunk)
+      return {
+        success: true,
+        content: fullContent
+      }
+    } else {
+      const content = await generateContent(prompt)
+      return {
+        success: true,
+        content
+      }
+    }
+  } catch (error) {
+    console.error('Error generating crop guide:', error)
+    return {
+      success: false,
+      error: error.message
+    }
+  }
+}
+
 export default {
   generateEducationalContent,
   getFarmingAdvice,
@@ -475,5 +575,7 @@ export default {
   analyzeSoilHealth,
   generateQuiz,
   getChatResponse,
-  generateCampaignContent
+  generateCampaignContent,
+  generateSustainableFarmingContent,
+  generateCropGuideContent
 }

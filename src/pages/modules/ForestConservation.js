@@ -4,6 +4,9 @@ export function ForestConservationPage() {
   const page = document.createElement('div')
   page.className = 'min-h-screen bg-background-light dark:bg-background-dark'
   
+  // Get campaigns from localStorage
+  let activeCampaigns = JSON.parse(localStorage.getItem('activeCampaigns') || '[]')
+  
   page.innerHTML = `
     <!-- Navigation -->
     <nav class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
@@ -126,57 +129,86 @@ export function ForestConservationPage() {
 
       <!-- Active Campaigns -->
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-        <h2 class="text-2xl font-bold text-text-light dark:text-text-dark mb-6">Active Campaigns Near You</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Campaign Card 1 -->
-          <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:border-primary transition-colors">
-            <div class="flex justify-between items-start mb-3">
-              <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Nairobi Urban Forest</h3>
-              <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">Active</span>
-            </div>
-            <p class="text-sm text-text-light/70 dark:text-text-dark/70 mb-4">
-              Plant 10,000 indigenous trees in urban Nairobi to improve air quality and create green spaces.
+        <h2 class="text-2xl font-bold text-text-light dark:text-text-dark mb-6">
+          ${activeCampaigns.length > 0 ? 'Active Campaigns' : 'No Active Campaigns'}
+        </h2>
+        ${activeCampaigns.length === 0 ? `
+          <div class="text-center py-8">
+            <span class="material-symbols-outlined text-gray-400 text-6xl mb-4 block">campaign</span>
+            <p class="text-text-light/70 dark:text-text-dark/70 mb-4">
+              No campaigns yet. Be the first to create one!
             </p>
-            <div class="space-y-2 mb-4">
-              <div class="flex justify-between text-sm">
-                <span class="text-text-light/60 dark:text-text-dark/60">Progress</span>
-                <span class="font-semibold text-primary">6,245 / 10,000 trees</span>
-              </div>
-              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div class="bg-primary h-2 rounded-full" style="width: 62.45%"></div>
-              </div>
-            </div>
-            <button class="w-full py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-              Join Campaign
+            <button id="create-campaign-btn" class="px-6 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent/90 transition-colors">
+              Create Campaign
             </button>
           </div>
-
-          <!-- Campaign Card 2 -->
-          <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:border-primary transition-colors">
-            <div class="flex justify-between items-start mb-3">
-              <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Mau Forest Restoration</h3>
-              <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">Active</span>
-            </div>
-            <p class="text-sm text-text-light/70 dark:text-text-dark/70 mb-4">
-              Restore 500 hectares of degraded Mau Forest with native tree species and community engagement.
-            </p>
-            <div class="space-y-2 mb-4">
-              <div class="flex justify-between text-sm">
-                <span class="text-text-light/60 dark:text-text-dark/60">Progress</span>
-                <span class="font-semibold text-primary">327 / 500 hectares</span>
-              </div>
-              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div class="bg-primary h-2 rounded-full" style="width: 65.4%"></div>
-              </div>
-            </div>
-            <button class="w-full py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-              Join Campaign
-            </button>
+        ` : `
+          <div id="campaigns-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Campaigns will be rendered here -->
           </div>
-        </div>
+        `}
       </div>
     </main>
   `
+  
+  // Render campaigns dynamically
+  const renderCampaigns = () => {
+    const campaignsGrid = page.querySelector('#campaigns-grid')
+    if (!campaignsGrid) return
+    
+    campaignsGrid.innerHTML = ''
+    
+    const typeIcons = {
+      'reforestation': 'park',
+      'urban-greening': 'location_city',
+      'watershed': 'water_drop',
+      'agroforestry': 'agriculture'
+    }
+    
+    activeCampaigns.forEach((campaign) => {
+      const progress = campaign.progress || 0
+      const progressPercent = (progress / campaign.goal) * 100
+      const icon = typeIcons[campaign.type] || 'park'
+      
+      const campaignCard = document.createElement('div')
+      campaignCard.className = 'border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:border-primary transition-colors'
+      campaignCard.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">${icon}</span>
+            <h3 class="font-bold text-lg text-text-light dark:text-text-dark">${campaign.title}</h3>
+          </div>
+          <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">Active</span>
+        </div>
+        <p class="text-sm text-text-light/70 dark:text-text-dark/70 mb-2">
+          <span class="material-symbols-outlined text-xs align-middle">location_on</span>
+          ${campaign.location}
+        </p>
+        <p class="text-sm text-text-light/70 dark:text-text-dark/70 mb-4 line-clamp-2">
+          ${campaign.description.substring(0, 120)}...
+        </p>
+        <div class="space-y-2 mb-4">
+          <div class="flex justify-between text-sm">
+            <span class="text-text-light/60 dark:text-text-dark/60">Progress</span>
+            <span class="font-semibold text-primary">${progress.toLocaleString()} / ${campaign.goal.toLocaleString()} trees</span>
+          </div>
+          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div class="bg-primary h-2 rounded-full" style="width: ${progressPercent}%"></div>
+          </div>
+        </div>
+        <button class="w-full py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors view-campaign-btn">
+          View Campaign
+        </button>
+      `
+      
+      // Add click handler to view campaign
+      campaignCard.querySelector('.view-campaign-btn').addEventListener('click', () => {
+        router.navigate('/forest/campaigns')
+      })
+      
+      campaignsGrid.appendChild(campaignCard)
+    })
+  }
   
   // Event listeners
   page.querySelector('#back-btn').addEventListener('click', () => {
@@ -194,6 +226,19 @@ export function ForestConservationPage() {
   page.querySelector('#alerts').addEventListener('click', () => {
     router.navigate('/forest/alerts')
   })
+  
+  // Handle create campaign button if no campaigns exist
+  const createCampaignBtn = page.querySelector('#create-campaign-btn')
+  if (createCampaignBtn) {
+    createCampaignBtn.addEventListener('click', () => {
+      router.navigate('/forest/campaigns')
+    })
+  }
+  
+  // Render campaigns if they exist
+  if (activeCampaigns.length > 0) {
+    renderCampaigns()
+  }
   
   return page
 }

@@ -110,6 +110,24 @@ export function HomePage() {
             Explore <span class="material-symbols-outlined text-sm">arrow_forward</span>
           </button>
         </div>
+          <!-- Regional Crop Planner -->
+          <div class="module-card bg-gradient-to-br from-lime-50 to-lime-100 dark:from-lime-900/20 dark:to-lime-800/20">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="p-3 bg-lime-500/20 rounded-xl">
+                <span class="material-symbols-outlined text-lime-600 dark:text-lime-400 text-3xl">local_florist</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Regional Crop Planner</h3>
+                <p class="text-xs text-text-light/60 dark:text-text-dark/60">Kenya Regions & Crops</p>
+              </div>
+            </div>
+            <p class="text-sm text-text-light/70 dark:text-text-dark/70 mb-4">
+              Select your region in Kenya, choose crops, and get sustainable growing tips and educational content.
+            </p>
+            <button class="module-btn" data-module="crops">
+              Explore <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
       </div>
 
       <!-- Impact Dashboard -->
