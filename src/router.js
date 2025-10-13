@@ -8,6 +8,8 @@ import { ForestCampaignsPage } from './pages/modules/ForestCampaigns'
 import { DeforestationAlertsPage } from './pages/modules/DeforestationAlerts'
 import { SoilHealthPage } from './pages/modules/SoilHealth'
 import { RegionalCropPlannerPage } from './pages/modules/RegionalCropPlanner'
+import { CommunityPage } from './pages/Community'
+import { AILandDegradationPage } from './pages/AILandDegradation'
 import { supabase } from './lib/supabase'
 
 class Router {
@@ -24,6 +26,8 @@ class Router {
       '/forest/alerts': DeforestationAlertsPage,
       '/soil': SoilHealthPage,
       '/crops': RegionalCropPlannerPage,
+      '/community': CommunityPage,
+      '/ai-degradation': AILandDegradationPage,
     }
     this.currentPath = window.location.pathname
     this.container = null
@@ -43,7 +47,7 @@ class Router {
 
   async navigate(path, pushState = true) {
     // Check authentication for protected routes
-    const protectedRoutes = ['/home', '/dashboard', '/forest', '/soil', '/crops', '/biodiversity', '/wetlands']
+    const protectedRoutes = ['/home', '/dashboard', '/forest', '/soil', '/crops', '/community', '/ai-degradation', '/biodiversity', '/wetlands']
     const isProtected = protectedRoutes.some(route => path.startsWith(route))
     
     if (isProtected) {

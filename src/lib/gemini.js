@@ -15,7 +15,7 @@ const genAI = new GoogleGenAI({
 })
 
 // Helper function to generate content
-async function generateContent(prompt, modelName = 'gemini-2.0-flash-exp') {
+export async function generateContent(prompt, modelName = 'gemini-2.0-flash-exp') {
   try {
     const result = await genAI.models.generateContent({
       model: modelName,
@@ -29,7 +29,7 @@ async function generateContent(prompt, modelName = 'gemini-2.0-flash-exp') {
 }
 
 // Helper function to generate content with streaming
-async function generateContentStream(prompt, onChunk, modelName = 'gemini-2.0-flash-exp') {
+export async function generateContentStream(prompt, onChunk, modelName = 'gemini-2.0-flash-exp') {
   try {
     const stream = await genAI.models.generateContentStream({
       model: modelName,
@@ -566,12 +566,16 @@ DO NOT use markdown, asterisks, or special formatting. Write in clear paragraphs
   }
 }
 
+// Export as default for backward compatibility
 export default {
+  generateContent,
+  generateContentStream,
   generateEducationalContent,
   getFarmingAdvice,
   getCropRotationPlan,
   identifySpecies,
   generateForestContent,
+  generateForestContentStream,
   analyzeSoilHealth,
   generateQuiz,
   getChatResponse,

@@ -132,6 +132,44 @@ export function HomePage() {
               Explore <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </button>
           </div>
+
+          <!-- Community Sharing Platform -->
+          <div class="module-card bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="p-3 bg-purple-500/20 rounded-xl">
+                <span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-3xl">groups</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Community Hub</h3>
+                <p class="text-xs text-text-light/60 dark:text-text-dark/60">Share & Learn</p>
+              </div>
+            </div>
+            <p class="text-sm text-text-light/70 dark:text-text-dark/70 mb-4">
+              Share restoration projects, learn from others, and build sustainable solutions together.
+            </p>
+            <button class="module-btn" data-module="community">
+              Explore <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
+
+          <!-- AI Land Degradation Prediction -->
+          <div class="module-card bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="p-3 bg-indigo-500/20 rounded-xl">
+                <span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-3xl">insights</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-lg text-text-light dark:text-text-dark">AI Degradation Prediction</h3>
+                <p class="text-xs text-text-light/60 dark:text-text-dark/60">Predictive Analysis</p>
+              </div>
+            </div>
+            <p class="text-sm text-text-light/70 dark:text-text-dark/70 mb-4">
+              AI-powered risk assessment, future predictions, and personalized restoration guidance.
+            </p>
+            <button class="module-btn" data-module="ai-degradation">
+              Explore <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
       </div>
 
       <!-- Integrated Data Dashboard -->
