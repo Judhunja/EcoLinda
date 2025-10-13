@@ -18,6 +18,155 @@ export function SoilHealthPage() {
   let climateData = null
   let cropRecommendations = null
   let selectedCrop = null
+  let selectedRegion = null
+  
+  // Region data with representative coordinates and characteristics
+  const regionData = {
+    'central-highlands': {
+      name: 'Central Highlands',
+      counties: ['Kiambu', 'Nyeri', 'Murang\'a', 'Kirinyaga', 'Embu'],
+      coordinates: { lat: -0.7833, lon: 36.9500 },
+      characteristics: {
+        soilType: 'Volcanic (Andosols)',
+        fertility: 'Very High',
+        rainfall: 'High (1000-2000mm)',
+        temperature: 'Cool to Moderate (15-25°C)',
+        bestCrops: ['Tea', 'Coffee', 'Vegetables', 'Potatoes', 'Maize'],
+        advantages: [
+          'Rich volcanic soils with high organic matter',
+          'Excellent water retention capacity',
+          'Favorable altitude for high-value crops',
+          'Good rainfall distribution'
+        ]
+      }
+    },
+    'western-highlands': {
+      name: 'Western Highlands',
+      counties: ['Kisii', 'Kericho', 'Nandi', 'Bomet', 'Kakamega'],
+      coordinates: { lat: -0.6833, lon: 35.2833 },
+      characteristics: {
+        soilType: 'Volcanic with Clay',
+        fertility: 'High',
+        rainfall: 'Very High (1500-2500mm)',
+        temperature: 'Cool (12-22°C)',
+        bestCrops: ['Tea', 'Bananas', 'Avocado', 'Maize', 'Beans'],
+        advantages: [
+          'Abundant rainfall throughout the year',
+          'Excellent for tea cultivation',
+          'Deep fertile soils',
+          'Good for agroforestry'
+        ]
+      }
+    },
+    'rift-valley': {
+      name: 'Rift Valley',
+      counties: ['Nakuru', 'Narok', 'Kajiado', 'Baringo', 'Laikipia'],
+      coordinates: { lat: -0.3031, lon: 36.0800 },
+      characteristics: {
+        soilType: 'Alkaline (Vertisols)',
+        fertility: 'Moderate to High',
+        rainfall: 'Moderate (600-1200mm)',
+        temperature: 'Warm (18-28°C)',
+        bestCrops: ['Wheat', 'Maize', 'Pyrethrum', 'Barley', 'Sunflower'],
+        advantages: [
+          'Large-scale farming potential',
+          'Good for cereals and wheat',
+          'Suitable for mechanized farming',
+          'Diverse agro-ecological zones'
+        ]
+      }
+    },
+    'eastern': {
+      name: 'Eastern',
+      counties: ['Machakos', 'Makueni', 'Kitui', 'Embu', 'Meru'],
+      coordinates: { lat: -1.5177, lon: 37.2634 },
+      characteristics: {
+        soilType: 'Sandy Loam',
+        fertility: 'Low to Moderate',
+        rainfall: 'Low to Moderate (500-1000mm)',
+        temperature: 'Warm (20-30°C)',
+        bestCrops: ['Sorghum', 'Millet', 'Pigeon Peas', 'Green Grams', 'Mangoes'],
+        advantages: [
+          'Good for drought-resistant crops',
+          'Suitable for fruit trees',
+          'Potential for irrigation farming',
+          'Growing organic farming sector'
+        ]
+      }
+    },
+    'nyanza': {
+      name: 'Nyanza',
+      counties: ['Kisumu', 'Siaya', 'Migori', 'Homa Bay', 'Kisii'],
+      coordinates: { lat: -0.0917, lon: 34.7680 },
+      characteristics: {
+        soilType: 'Clay Loam',
+        fertility: 'Moderate to High',
+        rainfall: 'High (1200-1800mm)',
+        temperature: 'Warm (20-28°C)',
+        bestCrops: ['Sugarcane', 'Rice', 'Cotton', 'Maize', 'Sorghum'],
+        advantages: [
+          'Proximity to Lake Victoria',
+          'Good for rice cultivation',
+          'Favorable for sugarcane',
+          'Rich fishing and irrigation potential'
+        ]
+      }
+    },
+    'coast': {
+      name: 'Coast',
+      counties: ['Mombasa', 'Kilifi', 'Kwale', 'Lamu', 'Tana River'],
+      coordinates: { lat: -4.0435, lon: 39.6682 },
+      characteristics: {
+        soilType: 'Sandy (Arenosols)',
+        fertility: 'Low',
+        rainfall: 'Moderate (800-1200mm)',
+        temperature: 'Hot & Humid (24-32°C)',
+        bestCrops: ['Coconut', 'Cashew Nuts', 'Cassava', 'Mangoes', 'Pineapples'],
+        advantages: [
+          'Excellent for coconut plantations',
+          'Good for cashew nuts',
+          'Suitable for tropical fruits',
+          'Growing tourism-linked markets'
+        ]
+      }
+    },
+    'northeastern': {
+      name: 'North Eastern',
+      counties: ['Garissa', 'Wajir', 'Mandera', 'Isiolo'],
+      coordinates: { lat: 1.5870, lon: 39.6460 },
+      characteristics: {
+        soilType: 'Arid Sandy',
+        fertility: 'Very Low',
+        rainfall: 'Very Low (200-500mm)',
+        temperature: 'Very Hot (25-40°C)',
+        bestCrops: ['Sorghum', 'Millet', 'Cowpeas', 'Drought-tolerant varieties'],
+        advantages: [
+          'Suitable for pastoralism',
+          'Growing potential for drought-resistant crops',
+          'Opportunities for irrigation projects',
+          'Focus on climate-smart agriculture'
+        ]
+      }
+    },
+    'northwestern': {
+      name: 'North Western',
+      counties: ['Turkana', 'West Pokot', 'Samburu', 'Marsabit'],
+      coordinates: { lat: 2.5206, lon: 35.8986 },
+      characteristics: {
+        soilType: 'Arid Rocky',
+        fertility: 'Very Low',
+        rainfall: 'Very Low (200-600mm)',
+        temperature: 'Hot (22-38°C)',
+        bestCrops: ['Sorghum', 'Cassava', 'Indigenous Vegetables', 'Millet'],
+        advantages: [
+          'Potential for indigenous crops',
+          'Growing irrigation schemes',
+          'Suitable for hardy livestock',
+          'Emerging solar-powered irrigation'
+        ]
+      }
+    }
+  }
   
   page.innerHTML = `
     <!-- Navigation -->
@@ -49,14 +198,35 @@ export function SoilHealthPage() {
           Get AI-powered soil analysis, weather insights, and personalized crop recommendations for sustainable agriculture.
         </p>
         
+        <!-- Region Selector -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-6">
+          <label class="block text-white font-semibold mb-3 text-lg">Select Your Region</label>
+          <select id="region-selector" class="w-full md:w-2/3 px-4 py-3 rounded-lg text-gray-800 font-semibold text-base focus:ring-2 focus:ring-white focus:outline-none">
+            <option value="">-- Choose your region --</option>
+            <option value="central-highlands">Central Highlands (Kiambu, Nyeri, Murang'a)</option>
+            <option value="western-highlands">Western Highlands (Kisii, Kericho, Nandi)</option>
+            <option value="rift-valley">Rift Valley (Nakuru, Narok, Kajiado)</option>
+            <option value="eastern">Eastern (Machakos, Makueni, Kitui)</option>
+            <option value="nyanza">Nyanza (Kisumu, Siaya, Migori)</option>
+            <option value="coast">Coast (Mombasa, Kilifi, Kwale)</option>
+            <option value="northeastern">North Eastern (Garissa, Wajir, Mandera)</option>
+            <option value="northwestern">North Western (Turkana, West Pokot, Samburu)</option>
+          </select>
+          <p class="text-white/80 text-sm mt-2">Or use the buttons below to detect your location automatically</p>
+        </div>
+        
         <div class="flex flex-wrap gap-4">
-          <button id="analyze-btn" class="bg-white text-green-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-green-50 transition-all shadow-lg flex items-center gap-2">
+          <button id="analyze-region-btn" class="bg-white text-green-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-green-50 transition-all shadow-lg flex items-center gap-2">
             <span class="material-symbols-outlined">analytics</span>
-            Analyze My Farm
+            Analyze Selected Region
+          </button>
+          <button id="analyze-btn" class="bg-white/20 backdrop-blur-sm text-white px-6 py-4 rounded-xl font-semibold hover:bg-white/30 transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined">my_location</span>
+            Use My Location
           </button>
           <button id="manual-location-btn" class="bg-white/20 backdrop-blur-sm text-white px-6 py-4 rounded-xl font-semibold hover:bg-white/30 transition-all flex items-center gap-2">
             <span class="material-symbols-outlined">location_on</span>
-            Enter Location Manually
+            Enter Coordinates
           </button>
         </div>
       </div>
@@ -310,6 +480,26 @@ export function SoilHealthPage() {
     }
   })
 
+  // Region selector change handler
+  page.querySelector('#region-selector').addEventListener('change', (e) => {
+    selectedRegion = e.target.value
+  })
+
+  // Analyze selected region
+  page.querySelector('#analyze-region-btn').addEventListener('click', () => {
+    const regionSelect = page.querySelector('#region-selector')
+    const region = regionSelect.value
+    
+    if (!region) {
+      alert('Please select a region first')
+      return
+    }
+    
+    selectedRegion = region
+    const data = regionData[region]
+    analyzeLocation(data.coordinates.lat, data.coordinates.lon, data)
+  })
+
   page.querySelector('#analyze-btn').addEventListener('click', async () => {
     if (navigator.geolocation) {
       page.querySelector('#analyze-btn').disabled = true
@@ -321,13 +511,13 @@ export function SoilHealthPage() {
         },
         (error) => {
           console.error('Geolocation error:', error)
-          alert('Could not get your location. Please enter it manually.')
+          alert('Could not get your location. Please select a region or enter coordinates manually.')
           page.querySelector('#analyze-btn').disabled = false
-          page.querySelector('#analyze-btn').innerHTML = '<span class="material-symbols-outlined">analytics</span> Analyze My Farm'
+          page.querySelector('#analyze-btn').innerHTML = '<span class="material-symbols-outlined">my_location</span> Use My Location'
         }
       )
     } else {
-      alert('Geolocation is not supported by your browser. Please enter location manually.')
+      alert('Geolocation is not supported by your browser. Please select a region or enter coordinates manually.')
     }
   })
 
@@ -365,13 +555,13 @@ export function SoilHealthPage() {
   page.querySelector('#filter-resilient').addEventListener('click', () => {
     setActiveFilter('resilient')
     const resilient = cropEngine.getClimateResilientCrops()
-    displayCrops(cropRecommendations.filter(c => resilient.some(r => r.id === c.crop.id)))
+    displayCrops(cropRecommendations.filter(c => resilient.some(r => r.id === c.id)))
   })
 
   page.querySelector('#filter-drought').addEventListener('click', () => {
     setActiveFilter('drought')
     const drought = cropEngine.getDroughtTolerantCrops()
-    displayCrops(cropRecommendations.filter(c => drought.some(d => d.id === c.crop.id)))
+    displayCrops(cropRecommendations.filter(c => drought.some(d => d.id === c.id)))
   })
 
   function setActiveFilter(filter) {
@@ -386,8 +576,8 @@ export function SoilHealthPage() {
     })
   }
 
-  async function analyzeLocation(latitude, longitude) {
-    currentLocation = { latitude, longitude }
+  async function analyzeLocation(latitude, longitude, regionInfo = null) {
+    currentLocation = { latitude, longitude, regionInfo }
     
     // Show loading
     page.querySelector('#hero-section').classList.add('hidden')
@@ -396,17 +586,29 @@ export function SoilHealthPage() {
     
     try {
       // Fetch all data in parallel
-      const [soil, climate] = await Promise.all([
+      const [soil, currentWeather] = await Promise.all([
         soilAPI.analyzeSoilByLocation(latitude, longitude),
         climateAPI.getCurrentWeather(latitude, longitude)
       ])
       
       soilData = soil
-      climateData = climate
+      
+      // If region info is provided, enhance soil data with region-specific information
+      if (regionInfo) {
+        soilData.regionName = regionInfo.name
+        soilData.regionCounties = regionInfo.counties
+        soilData.regionCharacteristics = regionInfo.characteristics
+      }
+      
+      // Structure climate data properly
+      climateData = {
+        current: currentWeather,
+        forecast: { daily: [] }
+      }
       
       // Get forecast
       const forecast = await climateAPI.getForecast(latitude, longitude)
-      climateData.forecast = forecast
+      climateData.forecast.daily = forecast
       
       // Get crop recommendations
       cropRecommendations = cropEngine.recommendCrops(soilData, climateData)
@@ -420,10 +622,10 @@ export function SoilHealthPage() {
       page.querySelector('#loading-section').classList.add('hidden')
       page.querySelector('#hero-section').classList.remove('hidden')
       
-      // Reset analyze button
+      // Reset analyze buttons
       const analyzeBtn = page.querySelector('#analyze-btn')
       analyzeBtn.disabled = false
-      analyzeBtn.innerHTML = '<span class="material-symbols-outlined">analytics</span> Analyze My Farm'
+      analyzeBtn.innerHTML = '<span class="material-symbols-outlined">my_location</span> Use My Location'
     }
   }
 
@@ -451,10 +653,10 @@ export function SoilHealthPage() {
     // Display crops
     displayCrops(cropRecommendations)
     
-    // Reset analyze button
+    // Reset analyze buttons
     const analyzeBtn = page.querySelector('#analyze-btn')
     analyzeBtn.disabled = false
-    analyzeBtn.innerHTML = '<span class="material-symbols-outlined">analytics</span> Analyze My Farm'
+    analyzeBtn.innerHTML = '<span class="material-symbols-outlined">my_location</span> Use My Location'
   }
 
   function getHealthStatus(score) {
@@ -466,37 +668,83 @@ export function SoilHealthPage() {
   }
 
   function displaySoilAnalysis() {
-    page.querySelector('#soil-location').textContent = `${currentLocation.latitude.toFixed(4)}°, ${currentLocation.longitude.toFixed(4)}`
-    page.querySelector('#soil-type-info').textContent = `${soilData.type} - ${soilData.texture}`
+    // Show location and region info
+    let locationText = `${currentLocation.latitude.toFixed(4)}°, ${currentLocation.longitude.toFixed(4)}`
+    if (soilData.regionName) {
+      locationText = `${soilData.regionName} - ${locationText}`
+    }
+    page.querySelector('#soil-location').textContent = locationText
+    
+    page.querySelector('#soil-type-info').textContent = `${soilData.soilType.type} - ${soilData.soilType.texture}`
     
     // Display metrics
     const metricsHTML = `
-      ${createMetricBar('pH Level', soilData.ph, 5, 8, soilData.phStatus)}
-      ${createMetricBar('Nitrogen (N)', soilData.nitrogen, 0, 100, soilData.nitrogenStatus)}
-      ${createMetricBar('Phosphorus (P)', soilData.phosphorus, 0, 100, soilData.phosphorusStatus)}
-      ${createMetricBar('Potassium (K)', soilData.potassium, 0, 100, soilData.potassiumStatus)}
-      ${createMetricBar('Organic Matter', soilData.organicMatter, 0, 10, soilData.organicMatterStatus)}
+      ${createMetricBar('pH Level', soilData.analysis.pH.value, 5, 8, soilData.analysis.pH.status.level.toLowerCase())}
+      ${createMetricBar('Nitrogen (N)', soilData.analysis.nitrogen.value * 100, 0, 100, soilData.analysis.nitrogen.status.level.toLowerCase())}
+      ${createMetricBar('Phosphorus (P)', soilData.analysis.phosphorus.value, 0, 100, soilData.analysis.phosphorus.status.level.toLowerCase())}
+      ${createMetricBar('Potassium (K)', soilData.analysis.potassium.value, 0, 300, soilData.analysis.potassium.status.level.toLowerCase())}
+      ${createMetricBar('Organic Matter', soilData.analysis.organicMatter.value, 0, 10, soilData.analysis.organicMatter.status.level.toLowerCase())}
     `
     page.querySelector('#soil-metrics').innerHTML = metricsHTML
     
-    // Display recommendations
-    const recsHTML = soilData.recommendations.immediate.map(rec => `
-      <div class="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-        <span class="material-symbols-outlined text-amber-600 mt-1">priority_high</span>
-        <div>
-          <div class="font-semibold text-text-light dark:text-text-dark text-sm">IMMEDIATE</div>
-          <div class="text-text-light/80 dark:text-text-dark/80 text-sm">${rec}</div>
+    // Display recommendations (immediate and short-term)
+    let recsHTML = ''
+    
+    // Add region-specific recommendations if available
+    if (soilData.regionCharacteristics) {
+      recsHTML += `
+        <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border-2 border-green-300 dark:border-green-700 mb-3">
+          <h4 class="font-bold text-green-800 dark:text-green-300 mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined">location_on</span>
+            ${soilData.regionName} Region Insights
+          </h4>
+          <div class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+            <div><span class="font-semibold">Counties:</span> ${soilData.regionCounties.join(', ')}</div>
+            <div><span class="font-semibold">Soil Type:</span> ${soilData.regionCharacteristics.soilType}</div>
+            <div><span class="font-semibold">Fertility:</span> ${soilData.regionCharacteristics.fertility}</div>
+            <div><span class="font-semibold">Rainfall:</span> ${soilData.regionCharacteristics.rainfall}</div>
+            <div><span class="font-semibold">Temperature:</span> ${soilData.regionCharacteristics.temperature}</div>
+            <div><span class="font-semibold">Best Crops:</span> ${soilData.regionCharacteristics.bestCrops.join(', ')}</div>
+          </div>
+          <div class="mt-3">
+            <div class="font-semibold text-sm mb-2 text-green-800 dark:text-green-300">Regional Advantages:</div>
+            <ul class="space-y-1">
+              ${soilData.regionCharacteristics.advantages.map(adv => `
+                <li class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                  <span class="text-green-600">✓</span>
+                  <span>${adv}</span>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
         </div>
-      </div>
-    `).join('') + soilData.recommendations.shortTerm.map(rec => `
-      <div class="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-        <span class="material-symbols-outlined text-blue-600 mt-1">schedule</span>
-        <div>
-          <div class="font-semibold text-text-light dark:text-text-dark text-sm">SHORT TERM (1-3 months)</div>
-          <div class="text-text-light/80 dark:text-text-dark/80 text-sm">${rec}</div>
+      `
+    }
+    
+    // Add soil-specific recommendations
+    if (soilData.recommendations.immediate && soilData.recommendations.immediate.length > 0) {
+      recsHTML += soilData.recommendations.immediate.map(rec => `
+        <div class="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+          <span class="material-symbols-outlined text-amber-600 mt-1">priority_high</span>
+          <div>
+            <div class="font-semibold text-text-light dark:text-text-dark text-sm">IMMEDIATE ACTION</div>
+            <div class="text-text-light/80 dark:text-text-dark/80 text-sm">${typeof rec === 'string' ? rec : rec.description}</div>
+          </div>
         </div>
-      </div>
-    `).join('')
+      `).join('')
+    }
+    
+    if (soilData.recommendations.shortTerm && soilData.recommendations.shortTerm.length > 0) {
+      recsHTML += soilData.recommendations.shortTerm.map(rec => `
+        <div class="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <span class="material-symbols-outlined text-blue-600 mt-1">schedule</span>
+          <div>
+            <div class="font-semibold text-text-light dark:text-text-dark text-sm">SHORT TERM (1-3 months)</div>
+            <div class="text-text-light/80 dark:text-text-dark/80 text-sm">${typeof rec === 'string' ? rec : rec.description}</div>
+          </div>
+        </div>
+      `).join('')
+    }
     
     page.querySelector('#soil-recommendations').innerHTML = recsHTML
     
@@ -512,7 +760,7 @@ export function SoilHealthPage() {
             ${soilData.riskFactors.map(risk => `
               <li class="flex items-start gap-2 text-text-light/80 dark:text-text-dark/80 text-sm">
                 <span class="text-red-600">•</span>
-                <span>${risk}</span>
+                <span>${typeof risk === 'string' ? risk : risk.description}</span>
               </li>
             `).join('')}
           </ul>
@@ -524,22 +772,50 @@ export function SoilHealthPage() {
 
   function createMetricBar(label, value, min, max, status) {
     const percentage = ((value - min) / (max - min)) * 100
+    
+    // Normalize status to lowercase for comparison
+    const normalizedStatus = (status || '').toLowerCase()
+    
     const colors = {
-      low: 'bg-red-500',
-      medium: 'bg-yellow-500',
-      optimal: 'bg-green-500',
-      high: 'bg-orange-500'
+      'very low': 'bg-red-600',
+      'low': 'bg-orange-500',
+      'medium': 'bg-yellow-500',
+      'moderate': 'bg-yellow-500',
+      'good': 'bg-green-500',
+      'optimal': 'bg-green-600',
+      'high': 'bg-green-500',
+      'very high': 'bg-green-600',
+      'excellent': 'bg-green-700',
+      'very acidic': 'bg-red-600',
+      'acidic': 'bg-orange-500',
+      'slightly alkaline': 'bg-yellow-500',
+      'alkaline': 'bg-orange-500'
     }
-    const color = colors[status] || 'bg-gray-500'
+    const color = colors[normalizedStatus] || 'bg-gray-500'
+    
+    // Format value based on label
+    let displayValue = value.toFixed(label.includes('pH') ? 1 : 0)
+    let unit = ''
+    if (label.includes('pH')) {
+      unit = ''
+    } else if (label.includes('Nitrogen')) {
+      unit = '%'
+      displayValue = (value / 100).toFixed(2) + '%'
+    } else if (label.includes('Organic')) {
+      unit = '%'
+      displayValue = value.toFixed(1) + '%'
+    } else {
+      unit = ' ppm'
+    }
     
     return `
       <div>
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm font-semibold text-text-light dark:text-text-dark">${label}</span>
-          <span class="text-sm font-bold text-text-light dark:text-text-dark">${value}${label.includes('pH') ? '' : '%'}</span>
+          <span class="text-sm font-bold text-text-light dark:text-text-dark">${displayValue}${label.includes('Nitrogen') || label.includes('Organic') ? '' : unit}</span>
         </div>
         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-          <div class="${color} h-3 rounded-full transition-all" style="width: ${Math.min(percentage, 100)}%"></div>
+          <div class="${color} h-3 rounded-full transition-all" style="width: ${Math.min(Math.max(percentage, 0), 100)}%"></div>
         </div>
         <div class="text-xs text-text-light/70 dark:text-text-dark/70 mt-1 capitalize">${status}</div>
       </div>
@@ -549,9 +825,9 @@ export function SoilHealthPage() {
   function displayWeather() {
     // Current weather (already in quick stats, but let's update the card)
     page.querySelector('#current-temp').textContent = `${Math.round(climateData.current.temperature)}°C`
-    page.querySelector('#current-desc').textContent = climateData.current.description
+    page.querySelector('#current-desc').textContent = climateData.current.description || 'Clear'
     page.querySelector('#current-humidity').textContent = `Humidity: ${climateData.current.humidity}%`
-    page.querySelector('#current-wind').textContent = `Wind: ${climateData.current.windSpeed} km/h`
+    page.querySelector('#current-wind').textContent = `Wind: ${Math.round(climateData.current.windSpeed)} km/h`
     
     // 7-day forecast
     const forecastHTML = climateData.forecast.daily.map(day => `
@@ -560,8 +836,8 @@ export function SoilHealthPage() {
           ${new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
         </div>
         <div class="text-2xl mb-1">${getWeatherEmoji(day.description)}</div>
-        <div class="text-sm font-bold text-text-light dark:text-text-dark">${Math.round(day.maxTemp)}°</div>
-        <div class="text-xs text-text-light/70 dark:text-text-dark/70">${Math.round(day.minTemp)}°</div>
+        <div class="text-sm font-bold text-text-light dark:text-text-dark">${Math.round(day.tempMax)}°</div>
+        <div class="text-xs text-text-light/70 dark:text-text-dark/70">${Math.round(day.tempMin)}°</div>
         ${day.rainfall > 0 ? `<div class="text-xs text-blue-600 mt-1">${Math.round(day.rainfall)}mm</div>` : ''}
       </div>
     `).join('')
@@ -569,15 +845,15 @@ export function SoilHealthPage() {
     page.querySelector('#forecast-grid').innerHTML = forecastHTML
     
     // Farming recommendations
-    const farmingRecs = climateAPI.getFarmingRecommendations(climateData.current, climateData.forecast)
+    const farmingRecs = climateAPI.getFarmingRecommendations(climateData.current, climateData.forecast.daily)
     const recsHTML = farmingRecs.map(rec => `
       <div class="flex items-start gap-2 text-text-light/80 dark:text-text-dark/80 text-sm">
         <span class="text-amber-600">•</span>
-        <span>${rec}</span>
+        <span><strong>${rec.title}:</strong> ${rec.action}</span>
       </div>
     `).join('')
     
-    page.querySelector('#weather-recommendations').innerHTML = recsHTML
+    page.querySelector('#weather-recommendations').innerHTML = recsHTML || '<div class="text-sm text-text-light/70 dark:text-text-dark/70">Weather conditions are favorable for farming activities.</div>'
   }
 
   function getWeatherEmoji(description) {
@@ -590,9 +866,9 @@ export function SoilHealthPage() {
   }
 
   function displayCrops(crops) {
-    const cropsHTML = crops.slice(0, 9).map(recommendation => {
-      const crop = recommendation.crop
-      const score = recommendation.suitabilityScore
+    const cropsHTML = crops.slice(0, 9).map(crop => {
+      // The crop object already has all properties spread from the recommendation
+      const score = crop.suitabilityScore
       
       return `
         <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all cursor-pointer crop-card" data-crop-id="${crop.id}">
@@ -622,10 +898,10 @@ export function SoilHealthPage() {
             </div>
           </div>
           
-          ${recommendation.advantages.length > 0 ? `
+          ${crop.advantages && crop.advantages.length > 0 ? `
             <div class="mb-4">
               <div class="text-xs font-semibold text-green-600 mb-1">ADVANTAGES</div>
-              <div class="text-xs text-text-light/80 dark:text-text-dark/80">${recommendation.advantages[0]}</div>
+              <div class="text-xs text-text-light/80 dark:text-text-dark/80">${crop.advantages[0]}</div>
             </div>
           ` : ''}
           
@@ -648,10 +924,8 @@ export function SoilHealthPage() {
   }
 
   function showCropDetails(cropId) {
-    const recommendation = cropRecommendations.find(r => r.crop.id === cropId)
-    if (!recommendation) return
-    
-    const crop = recommendation.crop
+    const crop = cropRecommendations.find(c => c.id === cropId)
+    if (!crop) return
     
     page.querySelector('#crop-modal-title').textContent = `${crop.image} ${crop.name}`
     
@@ -673,27 +947,27 @@ export function SoilHealthPage() {
           <!-- Suitability Score -->
           <div class="bg-primary/10 rounded-xl p-4">
             <h4 class="text-lg font-bold text-text-light dark:text-text-dark mb-3">Suitability Score</h4>
-            <div class="text-4xl font-bold text-primary mb-2">${recommendation.suitabilityScore}/100</div>
+            <div class="text-4xl font-bold text-primary mb-2">${crop.suitabilityScore}/100</div>
             <div class="space-y-1 text-sm">
               <div class="flex justify-between">
                 <span>pH Compatibility:</span>
-                <span class="font-semibold">${recommendation.scoreBreakdown.ph}/20</span>
+                <span class="font-semibold">${crop.scoreBreakdown.pH}/20</span>
               </div>
               <div class="flex justify-between">
                 <span>Nutrient Match:</span>
-                <span class="font-semibold">${recommendation.scoreBreakdown.nutrients}/30</span>
+                <span class="font-semibold">${crop.scoreBreakdown.nutrients}/30</span>
               </div>
               <div class="flex justify-between">
                 <span>Climate Suitability:</span>
-                <span class="font-semibold">${recommendation.scoreBreakdown.climate}/30</span>
+                <span class="font-semibold">${crop.scoreBreakdown.climate}/30</span>
               </div>
               <div class="flex justify-between">
                 <span>Water Availability:</span>
-                <span class="font-semibold">${recommendation.scoreBreakdown.water}/10</span>
+                <span class="font-semibold">${crop.scoreBreakdown.water}/10</span>
               </div>
               <div class="flex justify-between">
                 <span>Sustainability:</span>
-                <span class="font-semibold">${recommendation.scoreBreakdown.sustainability}/10</span>
+                <span class="font-semibold">${crop.scoreBreakdown.sustainability}/10</span>
               </div>
             </div>
           </div>
@@ -823,14 +1097,14 @@ export function SoilHealthPage() {
 
       <!-- Advantages & Warnings -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-        ${recommendation.advantages.length > 0 ? `
+        ${crop.advantages && crop.advantages.length > 0 ? `
           <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4">
             <h4 class="font-bold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2">
               <span class="material-symbols-outlined">check_circle</span>
               Advantages
             </h4>
             <ul class="space-y-1">
-              ${recommendation.advantages.map(adv => `
+              ${crop.advantages.map(adv => `
                 <li class="text-sm text-text-light/80 dark:text-text-dark/80 flex items-start gap-2">
                   <span class="text-green-600">•</span>
                   <span>${adv}</span>
@@ -840,14 +1114,14 @@ export function SoilHealthPage() {
           </div>
         ` : ''}
         
-        ${recommendation.warnings.length > 0 ? `
+        ${crop.warnings && crop.warnings.length > 0 ? `
           <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4">
             <h4 class="font-bold text-amber-700 dark:text-amber-300 mb-2 flex items-center gap-2">
               <span class="material-symbols-outlined">warning</span>
               Considerations
             </h4>
             <ul class="space-y-1">
-              ${recommendation.warnings.map(warn => `
+              ${crop.warnings.map(warn => `
                 <li class="text-sm text-text-light/80 dark:text-text-dark/80 flex items-start gap-2">
                   <span class="text-amber-600">•</span>
                   <span>${warn}</span>

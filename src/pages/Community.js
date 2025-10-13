@@ -233,6 +233,7 @@ export function CommunityPage() {
   // Display posts
   function displayPosts(postsToDisplay) {
     const container = page.querySelector('#posts-container')
+    const votedPosts = JSON.parse(localStorage.getItem('ecolinda_voted_posts') || '{}')
     
     if (postsToDisplay.length === 0) {
       container.innerHTML = `
@@ -244,7 +245,9 @@ export function CommunityPage() {
       return
     }
 
-    container.innerHTML = postsToDisplay.map(post => `
+    container.innerHTML = postsToDisplay.map(post => {
+      const hasVoted = votedPosts[post.id]
+      return `
       <div class="post-card bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow cursor-pointer" data-post-id="${post.id}">
         <div class="flex items-start justify-between mb-4">
           <div class="flex items-center gap-3">
@@ -277,8 +280,11 @@ export function CommunityPage() {
 
         <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
           <div class="flex items-center gap-4">
-            <button class="vote-btn flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors" data-post-id="${post.id}" data-vote="up">
-              <span class="material-symbols-outlined">thumb_up</span>
+            <button class="vote-btn flex items-center gap-1 ${hasVoted ? 'text-primary' : 'text-gray-600 dark:text-gray-400'} hover:text-primary transition-colors" 
+                    data-post-id="${post.id}" 
+                    data-vote="up"
+                    ${hasVoted ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : ''}>
+              <span class="material-symbols-outlined">${hasVoted ? 'thumb_up' : 'thumb_up'}</span>
               <span>${post.upvotes}</span>
             </button>
             <button class="flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-secondary transition-colors">
@@ -291,7 +297,8 @@ export function CommunityPage() {
           </button>
         </div>
       </div>
-    `).join('')
+    `
+    }).join('')
 
     // Add click handlers
     page.querySelectorAll('.post-card').forEach(card => {
@@ -409,11 +416,46 @@ export function CommunityPage() {
   }
 
   function handleVote(postId, button) {
-    // Optimistic UI update
+    // Check if user has already voted on this post
+    const votedPosts = JSON.parse(localStorage.getItem('ecolinda_voted_posts') || '{}')
+    
+    if (votedPosts[postId]) {
+      // User already voted - show message and prevent duplicate vote
+      const notification = document.createElement('div')
+      notification.className = 'fixed top-4 right-4 bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in'
+      notification.textContent = '✓ You already liked this post'
+      document.body.appendChild(notification)
+      
+      // Remove notification after 3 seconds
+      setTimeout(() => {
+        notification.remove()
+      }, 3000)
+      
+      return
+    }
+    
+    // User hasn't voted yet - allow vote
     const countSpan = button.querySelector('span:last-child')
     const currentCount = parseInt(countSpan.textContent)
     countSpan.textContent = currentCount + 1
     button.classList.add('text-primary')
+    button.disabled = true
+    button.style.opacity = '0.6'
+    button.style.cursor = 'not-allowed'
+    
+    // Store vote in localStorage
+    votedPosts[postId] = true
+    localStorage.setItem('ecolinda_voted_posts', JSON.stringify(votedPosts))
+    
+    // Show success message
+    const successNotification = document.createElement('div')
+    successNotification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in'
+    successNotification.textContent = '✓ Post liked!'
+    document.body.appendChild(successNotification)
+    
+    setTimeout(() => {
+      successNotification.remove()
+    }, 2000)
   }
 
   // Event listeners

@@ -77,43 +77,6 @@ export function HomePage() {
           </button>
         </div>
 
-        <!-- Biodiversity -->
-        <div class="module-card bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="p-3 bg-accent/20 rounded-xl">
-              <span class="material-symbols-outlined text-accent text-3xl">pets</span>
-            </div>
-            <div>
-              <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Biodiversity</h3>
-              <p class="text-xs text-text-light/60 dark:text-text-dark/60">Species Protection</p>
-            </div>
-          </div>
-          <p class="text-sm text-text-light/70 dark:text-text-dark/70 mb-4">
-            Identify species with AI, adopt endangered animals, and contribute to conservation efforts.
-          </p>
-          <button class="module-btn" data-module="biodiversity">
-            Explore <span class="material-symbols-outlined text-sm">arrow_forward</span>
-          </button>
-        </div>
-
-        <!-- Wetlands -->
-        <div class="module-card bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="p-3 bg-blue-500/20 rounded-xl">
-              <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-3xl">water</span>
-            </div>
-            <div>
-              <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Wetlands</h3>
-              <p class="text-xs text-text-light/60 dark:text-text-dark/60">Conservation</p>
-            </div>
-          </div>
-          <p class="text-sm text-text-light/70 dark:text-text-dark/70 mb-4">
-            Map wetlands, monitor health, and protect these critical ecosystems from degradation.
-          </p>
-          <button class="module-btn" data-module="wetlands">
-            Explore <span class="material-symbols-outlined text-sm">arrow_forward</span>
-          </button>
-        </div>
           <!-- Regional Crop Planner -->
           <div class="module-card bg-gradient-to-br from-lime-50 to-lime-100 dark:from-lime-900/20 dark:to-lime-800/20">
             <div class="flex items-center gap-3 mb-4">
@@ -309,39 +272,6 @@ export function HomePage() {
           </div>
         </div>
       </div>
-
-      <!-- Quick Actions -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow cursor-pointer" id="report-violation">
-          <div class="flex items-center gap-4 mb-3">
-            <span class="material-symbols-outlined text-red-500 text-4xl">report</span>
-            <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Report Violation</h3>
-          </div>
-          <p class="text-sm text-text-light/70 dark:text-text-dark/70">
-            Report deforestation, pollution, or environmental violations in your area.
-          </p>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow cursor-pointer" id="identify-species">
-          <div class="flex items-center gap-4 mb-3">
-            <span class="material-symbols-outlined text-primary text-4xl">photo_camera</span>
-            <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Identify Species</h3>
-          </div>
-          <p class="text-sm text-text-light/70 dark:text-text-dark/70">
-            Use AI to identify plants and animals instantly with your camera.
-          </p>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow cursor-pointer" id="start-campaign">
-          <div class="flex items-center gap-4 mb-3">
-            <span class="material-symbols-outlined text-accent text-4xl">campaign</span>
-            <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Start Campaign</h3>
-          </div>
-          <p class="text-sm text-text-light/70 dark:text-text-dark/70">
-            Launch a reforestation or conservation campaign in your community.
-          </p>
-        </div>
-      </div>
     </main>
   `
   
@@ -357,19 +287,6 @@ export function HomePage() {
       const module = e.currentTarget.dataset.module
       router.navigate(`/${module}`)
     })
-  })
-  
-  // Quick actions
-  page.querySelector('#report-violation').addEventListener('click', () => {
-    router.navigate('/report')
-  })
-  
-  page.querySelector('#identify-species').addEventListener('click', () => {
-    router.navigate('/identify')
-  })
-  
-  page.querySelector('#start-campaign').addEventListener('click', () => {
-    router.navigate('/campaigns/new')
   })
 
   // Dashboard functionality
