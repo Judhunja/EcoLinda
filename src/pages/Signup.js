@@ -101,13 +101,19 @@ export function SignupPage() {
     successMessage.classList.add('hidden')
     
     try {
+      // Get the appropriate redirect URL based on environment
+      const redirectUrl = import.meta.env.PROD 
+        ? 'https://eco-linda.vercel.app' 
+        : 'http://localhost:3001'
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullname,
-          }
+          },
+          emailRedirectTo: redirectUrl
         }
       })
       
